@@ -1,7 +1,7 @@
 # set working directory to the folder containing the 'german' folder
-# setwd('/Users/David/Documents/Uni/4-SS15/Introduction to cognitive models of language processing/data/')
+# setwd('/Users/David/Documents/Uni/4-SS15/Introduction to cognitive models of language processing/project/data/')
 
-prepareData <- function( file ){
+prepareData <- function( uri ){
   gpw <- read.table('german/gpw/gpw.cd', header=FALSE, sep='\\', fill=TRUE, quote="")
   names(gpw) <- c('IdNum','Word','Mann','IdNumLemma','PhonStrsDISC','PhonSylBCLX','PhonCVBr')
   
@@ -11,12 +11,15 @@ prepareData <- function( file ){
   gml <- read.table('german/gml/gml.cd', header=FALSE, sep='\\', fill=TRUE, quote="")
   names(gml) <- c('IdNum','Head','Mann','MorphStatus','MorphCnt','DerComp','Comp','Def','Imm','ImmClass','ImmAllo','ImmOpac', 'ImmUml', 'StrucLab', 'StrucAllo', 'StrucOpac', 'StrucUml', 'Sepa', 'InflPar', 'InflVar')
   
-  data <- data.frame(
-    Word <- gpw$Word,
-    DISC <- gpw$PhonStrsDISC,
-    Frequency <- gpw$Mann )
+  gp <- merge(gpw, gpl, by.x="IdNumLemma", by.y="IdNum", suffixes = c(".w",".l"))
   
-  write.csv(data, file=file)
+  data <- data.frame(Word = gp$Word, 
+                     DISC = gp$PhonStrsDISC.w, 
+                     WordFrequency = gp$Mann.w,
+                     Lemma = gp$Head,
+                     LemmaFrequency = gp$Mann.l)
+
+  write.csv(data, file=uri)
   return( data )
 }
 
